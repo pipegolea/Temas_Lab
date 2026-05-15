@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROVER-7 | Taller Aeroespacial</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Orbitron:wght@400;700;900&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<style>
+  :root {
+    --bg: #050a0f;
+    --panel: #0a1520;
+    --border: #1a3a5c;
+    --accent: #00d4ff;
+    --accent2: #ff6b00;
+    --accent3: #00ff88;
+    --text: #c8e6f5;
+    --muted: #4a7a9b;
+    --code-bg: #020810;
+    --glow: 0 0 20px rgba(0,212,255,0.3);
+    --glow2: 0 0 20px rgba(255,107,0,0.3);
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘Space Mono’, monospace;
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* Starfield */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image:
+radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.4) 0%, transparent 100%),
+radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
+radial-gradient(1px 1px at 70% 80%, rgba(255,255,255,0.2) 0%, transparent 100%),
+radial-gradient(1px 1px at 90% 40%, rgba(255,255,255,0.4) 0%, transparent 100%),
+radial-gradient(1px 1px at 15% 75%, rgba(255,255,255,0.3) 0%, transparent 100%),
+radial-gradient(1px 1px at 85% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+radial-gradient(1px 1px at 45% 90%, rgba(255,255,255,0.2) 0%, transparent 100%),
+radial-gradient(1px 1px at 60% 35%, rgba(255,255,255,0.4) 0%, transparent 100%),
+radial-gradient(1px 1px at 25% 45%, rgba(255,255,255,0.3) 0%, transparent 100%);
+pointer-events: none;
+z-index: 0;
+}
+
+/* Header */
+header {
+position: relative;
+text-align: center;
+padding: 60px 20px 40px;
+border-bottom: 1px solid var(–border);
+background: linear-gradient(180deg, rgba(0,212,255,0.05) 0%, transparent 100%);
+z-index: 1;
+}
+
+.mission-badge {
+display: inline-block;
+font-family: ‘Fira Code’, monospace;
+font-size: 11px;
+letter-spacing: 4px;
+color: var(–accent);
+border: 1px solid var(–accent);
+padding: 4px 16px;
+margin-bottom: 20px;
+animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+0%, 100% { box-shadow: 0 0 5px rgba(0,212,255,0.3); }
+50% { box-shadow: 0 0 15px rgba(0,212,255,0.7); }
+}
+
+h1 {
+font-family: ‘Orbitron’, sans-serif;
+font-size: clamp(2rem, 6vw, 4.5rem);
+font-weight: 900;
+color: #fff;
+letter-spacing: 6px;
+text-shadow: 0 0 40px rgba(0,212,255,0.6), 0 0 80px rgba(0,212,255,0.2);
+line-height: 1.1;
+}
+
+h1 span {
+color: var(–accent);
+}
+
+.subtitle {
+margin-top: 12px;
+font-family: ‘Fira Code’, monospace;
+font-size: 13px;
+color: var(–muted);
+letter-spacing: 2px;
+}
+
+/* Status bar */
+.status-bar {
+display: flex;
+justify-content: center;
+gap: 30px;
+padding: 12px 20px;
+background: rgba(0,212,255,0.03);
+border-bottom: 1px solid var(–border);
+flex-wrap: wrap;
+position: relative;
+z-index: 1;
+}
+
+.status-item {
+font-family: ‘Fira Code’, monospace;
+font-size: 11px;
+color: var(–muted);
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.status-dot {
+width: 6px;
+height: 6px;
+border-radius: 50%;
+background: var(–accent3);
+box-shadow: 0 0 8px var(–accent3);
+animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.3; }
+}
+
+/* Nav tabs */
+.nav-tabs {
+display: flex;
+overflow-x: auto;
+gap: 0;
+padding: 20px 20px 0;
+border-bottom: 1px solid var(–border);
+position: sticky;
+top: 0;
+background: var(–bg);
+z-index: 100;
+scrollbar-width: thin;
+scrollbar-color: var(–border) transparent;
+}
+
+.tab-btn {
+font-family: ‘Fira Code’, monospace;
+font-size: 11px;
+letter-spacing: 1px;
+padding: 12px 18px;
+border: none;
+background: transparent;
+color: var(–muted);
+cursor: pointer;
+white-space: nowrap;
+border-bottom: 2px solid transparent;
+transition: all 0.2s;
+position: relative;
+top: 1px;
+}
+
+.tab-btn:hover { color: var(–accent); }
+
+.tab-btn.active {
+color: var(–accent);
+border-bottom-color: var(–accent);
+background: rgba(0,212,255,0.05);
+}
+
+.tab-number {
+font-size: 9px;
+color: var(–accent2);
+margin-right: 6px;
+}
+
+/* Main content */
+main {
+max-width: 1100px;
+margin: 0 auto;
+padding: 40px 20px 80px;
+position: relative;
+z-index: 1;
+}
+
+.role-panel {
+display: none;
+animation: fadeIn 0.3s ease;
+}
+
+.role-panel.active { display: block; }
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(10px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+/* Role header */
+.role-header {
+display: grid;
+grid-template-columns: auto 1fr;
+gap: 20px;
+align-items: start;
+margin-bottom: 40px;
+padding: 30px;
+border: 1px solid var(–border);
+background: var(–panel);
+position: relative;
+overflow: hidden;
+}
+
+.role-header::before {
+content: ‘’;
+position: absolute;
+top: 0; left: 0;
+width: 3px;
+height: 100%;
+background: var(–accent);
+box-shadow: var(–glow);
+}
+
+.role-icon {
+font-size: 3rem;
+line-height: 1;
+filter: drop-shadow(0 0 10px rgba(0,212,255,0.5));
+}
+
+.role-title {
+font-family: ‘Orbitron’, sans-serif;
+font-size: 1.5rem;
+font-weight: 700;
+color: #fff;
+letter-spacing: 2px;
+}
+
+.role-code {
+font-family: ‘Fira Code’, monospace;
+font-size: 10px;
+color: var(–accent);
+letter-spacing: 3px;
+margin-top: 4px;
+}
+
+.role-objective {
+margin-top: 10px;
+font-size: 13px;
+color: var(–text);
+line-height: 1.6;
+opacity: 0.8;
+}
+
+/* Random values generator */
+.random-panel {
+border: 1px solid var(–accent2);
+background: rgba(255,107,0,0.05);
+padding: 24px;
+margin-bottom: 32px;
+position: relative;
+}
+
+.random-panel::before {
+content: ‘// GENERADOR DE VALORES’;
+position: absolute;
+top: -10px;
+left: 20px;
+background: var(–bg);
+padding: 0 10px;
+font-family: ‘Fira Code’, monospace;
+font-size: 10px;
+color: var(–accent2);
+letter-spacing: 2px;
+}
+
+.random-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+gap: 12px;
+margin-bottom: 16px;
+}
+
+.random-field {
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+
+.random-field label {
+font-family: ‘Fira Code’, monospace;
+font-size: 10px;
+color: var(–muted);
+letter-spacing: 1px;
+}
+
+.random-field input {
+background: var(–code-bg);
+border: 1px solid var(–border);
+color: var(–accent3);
+font-family: ‘Fira Code’, monospace;
+font-size: 14px;
+padding: 8px 12px;
+outline: none;
+transition: border 0.2s;
+}
+
+.random-field input:focus {
+border-color: var(–accent);
+}
+
+.btn-random {
+font-family: ‘Orbitron’, sans-serif;
+font-size: 11px;
+letter-spacing: 2px;
+padding: 10px 24px;
+background: transparent;
+border: 1px solid var(–accent2);
+color: var(–accent2);
+cursor: pointer;
+transition: all 0.2s;
+text-transform: uppercase;
+}
+
+.btn-random:hover {
+background: var(–accent2);
+color: #000;
+box-shadow: var(–glow2);
+}
+
+.result-box {
+margin-top: 16px;
+background: var(–code-bg);
+border: 1px solid var(–border);
+padding: 16px;
+font-family: ‘Fira Code’, monospace;
+font-size: 13px;
+color: var(–accent3);
+display: none;
+white-space: pre-wrap;
+line-height: 1.8;
+}
+
+/* Section cards */
+.section-grid {
+display: grid;
+gap: 24px;
+margin-bottom: 32px;
+}
+
+.card {
+border: 1px solid var(–border);
+background: var(–panel);
+padding: 24px;
+position: relative;
+}
+
+.card-title {
+font-family: ‘Orbitron’, sans-serif;
+font-size: 11px;
+letter-spacing: 3px;
+color: var(–accent);
+margin-bottom: 20px;
+padding-bottom: 10px;
+border-bottom: 1px solid var(–border);
+}
+
+/* Formulas */
+.formula-list {
+display: flex;
+flex-direction: column;
+gap: 20px;
+}
+
+.formula-item {
+display: grid;
+grid-template-columns: auto 1fr;
+gap: 16px;
+align-items: center;
+padding: 16px;
+background: rgba(0,0,0,0.3);
+border-left: 2px solid var(–accent);
+}
+
+.formula-label {
+font-family: ‘Fira Code’, monospace;
+font-size: 10px;
+color: var(–muted);
+writing-mode: vertical-rl;
+text-orientation: mixed;
+letter-spacing: 2px;
+transform: rotate(180deg);
+}
+
+.formula-content {
+font-size: 1.1rem;
+color: #fff;
+}
+
+/* Code blocks */
+.code-block {
+background: var(–code-bg);
+border: 1px solid var(–border);
+border-top: 2px solid var(–accent2);
+padding: 20px;
+font-family: ‘Fira Code’, monospace;
+font-size: 13px;
+line-height: 1.8;
+overflow-x: auto;
+position: relative;
+}
+
+.code-lang {
+position: absolute;
+top: 0; right: 0;
+font-size: 9px;
+letter-spacing: 2px;
+padding: 4px 12px;
+background: var(–accent2);
+color: #000;
+font-weight: 700;
+}
+
+.code-block .kw { color: #ff6b9d; }
+.code-block .fn { color: #82aaff; }
+.code-block .str { color: #c3e88d; }
+.code-block .num { color: #f78c6c; }
+.code-block .cm { color: #546e7a; font-style: italic; }
+.code-block .var { color: var(–accent); }
+.code-block .op { color: #89ddff; }
+
+/* Questions */
+.questions-list {
+list-style: none;
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+
+.questions-list li {
+padding: 14px 18px;
+border: 1px solid var(–border);
+font-size: 13px;
+color: var(–text);
+position: relative;
+padding-left: 40px;
+line-height: 1.5;
+}
+
+.questions-list li::before {
+content: ‘?’;
+position: absolute;
+left: 14px;
+top: 14px;
+font-family: ‘Orbitron’, sans-serif;
+font-size: 11px;
+color: var(–accent2);
+font-weight: 700;
+}
+
+/* Tasks checklist */
+.task-list {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+gap: 10px;
+}
+
+.task-item {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 10px 14px;
+border: 1px solid var(–border);
+font-size: 12px;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.task-item:hover { border-color: var(–accent); background: rgba(0,212,255,0.05); }
+
+.task-check {
+width: 14px;
+height: 14px;
+border: 1px solid var(–muted);
+flex-shrink: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 10px;
+transition: all 0.2s;
+}
+
+.task-item.done .task-check {
+background: var(–accent3);
+border-color: var(–accent3);
+color: #000;
+}
+
+.task-item.done { opacity: 0.6; }
+
+/* Integration section */
+.integration-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+gap: 12px;
+}
+
+.integration-card {
+border: 1px solid var(–border);
+padding: 16px;
+text-align: center;
+transition: all 0.2s;
+}
+
+.integration-card:hover {
+border-color: var(–accent);
+box-shadow: var(–glow);
+}
+
+.int-icon { font-size: 2rem; margin-bottom: 8px; }
+.int-name {
+font-family: ‘Orbitron’, sans-serif;
+font-size: 10px;
+letter-spacing: 1px;
+color: var(–accent);
+}
+.int-desc { font-size: 10px; color: var(–muted); margin-top: 4px; }
+
+/* Footer */
+footer {
+text-align: center;
+padding: 30px;
+border-top: 1px solid var(–border);
+font-family: ‘Fira Code’, monospace;
+font-size: 11px;
+color: var(–muted);
+position: relative;
+z-index: 1;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(–bg); }
+::-webkit-scrollbar-thumb { background: var(–border); }
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="mission-badge">MISIÓN ACTIVA · ROVER-7 · MARTE 2025</div>
+  <h1>TALLER <span>ROVER</span></h1>
+  <div class="subtitle">Ingeniería Aeroespacial & Robótica · Proyecto Rover Planetario</div>
+</header>
+
+<div class="status-bar">
+  <div class="status-item"><span class="status-dot"></span>SISTEMA ACTIVO</div>
+  <div class="status-item"><span class="status-dot" style="background:#ff6b00;box-shadow:0 0 8px #ff6b00;"></span>7 ROLES ASIGNADOS</div>
+  <div class="status-item"><span class="status-dot" style="background:#ff6b9d;box-shadow:0 0 8px #ff6b9d;animation-delay:.5s"></span>VALORES ALEATORIOS: ON</div>
+  <div class="status-item"><span class="status-dot" style="animation-delay:1s"></span>INTEGRACIÓN REQUERIDA</div>
+</div>
+
+<div class="nav-tabs">
+  <button class="tab-btn active" onclick="showRole(0)"><span class="tab-number">01</span>LÍDER</button>
+  <button class="tab-btn" onclick="showRole(1)"><span class="tab-number">02</span>ELECTRÓNICA</button>
+  <button class="tab-btn" onclick="showRole(2)"><span class="tab-number">03</span>MOVILIDAD</button>
+  <button class="tab-btn" onclick="showRole(3)"><span class="tab-number">04</span>CHASIS</button>
+  <button class="tab-btn" onclick="showRole(4)"><span class="tab-number">05</span>PRUEBAS</button>
+  <button class="tab-btn" onclick="showRole(5)"><span class="tab-number">06</span>EXCAVACIÓN</button>
+  <button class="tab-btn" onclick="showRole(6)"><span class="tab-number">07</span>FPV</button>
+  <button class="tab-btn" onclick="showRole(7)"><span class="tab-number">★</span>INTEGRACIÓN</button>
+</div>
+
+<main>
+
+<!-- ROLE 0: LÍDER DE PROYECTO -->
+
+<div class="role-panel active" id="role-0">
+  <div class="role-header">
+    <div class="role-icon">🛸</div>
+    <div>
+      <div class="role-code">ROL-01 · GESTIÓN DE MISIÓN</div>
+      <div class="role-title">LÍDER DE PROYECTO</div>
+      <div class="role-objective">Gestionar tiempos, riesgos, costos y arquitectura general del rover. Garantizar integración entre todos los subsistemas.</div>
+    </div>
+  </div>
+
+  <div class="random-panel">
+    <div class="random-grid">
+      <div class="random-field">
+        <label>BATERÍA (Wh)</label>
+        <input type="number" id="r0_bat" value="120" min="50" max="300">
+      </div>
+      <div class="random-field">
+        <label>POTENCIA MOTORES (W)</label>
+        <input type="number" id="r0_mot" value="45" min="10" max="120">
+      </div>
+      <div class="random-field">
+        <label>POTENCIA FPV (W)</label>
+        <input type="number" id="r0_fpv" value="12" min="5" max="30">
+      </div>
+      <div class="random-field">
+        <label>POTENCIA CONTROL (W)</label>
+        <input type="number" id="r0_ctrl" value="8" min="3" max="20">
+      </div>
+      <div class="random-field">
+        <label>POTENCIA EXCAVACIÓN (W)</label>
+        <input type="number" id="r0_exc" value="30" min="10" max="80">
+      </div>
+    </div>
+    <button class="btn-random" onclick="randomRole0()">⚡ GENERAR VALORES ALEATORIOS</button>
+    <div class="result-box" id="r0_result"></div>
+  </div>
+
+  <div class="section-grid">
+    <div class="card">
+      <div class="card-title">RETOS DEL ROL</div>
+      <div class="task-list" id="tasks0">
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Diagrama de Gantt</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Gestión de energía total</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Presupuesto de peso</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Arquitectura electrónica</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Análisis de riesgos</span></div>
+      </div>
+    </div>
+
+```
+<div class="card">
+  <div class="card-title">MATEMÁTICAS — CONSUMO ENERGÉTICO</div>
+  <div class="formula-list">
+    <div class="formula-item">
+      <div class="formula-label">POTENCIA TOTAL</div>
+      <div class="formula-content">\[ P_{total} = \sum_{i=1}^{n} V_i I_i \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">ENERGÍA</div>
+      <div class="formula-content">\[ E = P \cdot t \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">AUTONOMÍA</div>
+      <div class="formula-content">\[ t_{op} = \frac{E_{batería}}{P_{total}} \]</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">CÓDIGO — CÁLCULO DE AUTONOMÍA (Python)</div>
+  <div class="code-block">
+    <span class="code-lang">PYTHON</span>
+```
+
+<span class="cm"># ── Parámetros del rover ──────────────────────</span>
+<span class="var">battery_wh</span> <span class="op">=</span> <span class="num">120</span>       <span class="cm"># Capacidad de la batería (Wh)</span>
+
+<span class="cm"># Consumo por subsistema (W)</span>
+<span class="var">motors</span>     <span class="op">=</span> <span class="num">45</span>
+<span class="var">fpv</span>        <span class="op">=</span> <span class="num">12</span>
+<span class="var">raspberry</span>  <span class="op">=</span> <span class="num">8</span>
+<span class="var">excavation</span> <span class="op">=</span> <span class="num">30</span>
+
+<span class="cm"># ── Cálculo ───────────────────────────────────</span>
+<span class="var">total_power</span> <span class="op">=</span> <span class="var">motors</span> <span class="op">+</span> <span class="var">fpv</span> <span class="op">+</span> <span class="var">raspberry</span> <span class="op">+</span> <span class="var">excavation</span>
+<span class="var">runtime</span>     <span class="op">=</span> <span class="var">battery_wh</span> <span class="op">/</span> <span class="var">total_power</span>
+
+<span class="fn">print</span>(<span class="str">f”Potencia total: <span class="op">{</span>total_power<span class="op">}</span> W”</span>)
+<span class="fn">print</span>(<span class="str">f”Autonomía:      <span class="op">{</span>runtime<span class="op">:.2f</span><span class="op">}</span> horas”</span>)
+</div>
+</div>
+
+```
+<div class="card">
+  <div class="card-title">PREGUNTAS DIFÍCILES</div>
+  <ul class="questions-list">
+    <li>¿Qué subsistema consume más energía y por qué es el cuello de botella?</li>
+    <li>¿Qué ocurre si falla un regulador buck durante la misión?</li>
+    <li>¿Cómo priorizas subsistemas si la batería cae al 20%?</li>
+    <li>¿Cuál es el impacto de temperatura en la capacidad real de la batería?</li>
+  </ul>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ROLE 1: ELECTRÓNICO -->
+
+<div class="role-panel" id="role-1">
+  <div class="role-header">
+    <div class="role-icon">⚡</div>
+    <div>
+      <div class="role-code">ROL-02 · SISTEMAS ELÉCTRICOS</div>
+      <div class="role-title">INGENIERO ELECTRÓNICO</div>
+      <div class="role-objective">Diseñar alimentación, protección y comunicación. PCB, regulación y buses de datos.</div>
+    </div>
+  </div>
+
+  <div class="random-panel">
+    <div class="random-grid">
+      <div class="random-field">
+        <label>VOLTAJE (V)</label>
+        <input type="number" id="r1_v" value="12" min="3.3" max="48" step="0.1">
+      </div>
+      <div class="random-field">
+        <label>CORRIENTE (A)</label>
+        <input type="number" id="r1_i" value="3.5" min="0.1" max="20" step="0.1">
+      </div>
+      <div class="random-field">
+        <label>RESISTENCIA (Ω)</label>
+        <input type="number" id="r1_r" value="10" min="1" max="1000">
+      </div>
+      <div class="random-field">
+        <label>CAPACITANCIA (µF)</label>
+        <input type="number" id="r1_c" value="100" min="1" max="10000">
+      </div>
+    </div>
+    <button class="btn-random" onclick="randomRole1()">⚡ GENERAR VALORES ALEATORIOS</button>
+    <div class="result-box" id="r1_result"></div>
+  </div>
+
+  <div class="section-grid">
+    <div class="card">
+      <div class="card-title">RETOS DEL ROL</div>
+      <div class="task-list">
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Diseño de PCB</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Regulación de voltaje</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Protección sobrecorriente</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Bus CAN/I2C/UART</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Ancho de pistas PCB</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Temperatura del regulador</span></div>
+      </div>
+    </div>
+
+```
+<div class="card">
+  <div class="card-title">MATEMÁTICAS — CIRCUITOS</div>
+  <div class="formula-list">
+    <div class="formula-item">
+      <div class="formula-label">LEY DE OHM</div>
+      <div class="formula-content">\[ V = IR \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">POTENCIA</div>
+      <div class="formula-content">\[ P = VI = I^2R = \frac{V^2}{R} \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">CAPACITOR</div>
+      <div class="formula-content">\[ Q = CV \qquad I = C\frac{dV}{dt} \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">CAÍDA DE TENSIÓN</div>
+      <div class="formula-content">\[ \Delta V = I \cdot R_{pista} \]</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">CÓDIGO — LECTURA ADC (Arduino/ESP32)</div>
+  <div class="code-block">
+    <span class="code-lang">C++</span>
+```
+
+<span class="cm">// ── Lectura de voltaje por ADC ────────────────</span>
+<span class="kw">const int</span> <span class="var">ADC_PIN</span>     <span class="op">=</span> <span class="num">34</span>;
+<span class="kw">const float</span> <span class="var">V_REF</span>    <span class="op">=</span> <span class="num">3.3</span>;
+<span class="kw">const int</span> <span class="var">ADC_RES</span>    <span class="op">=</span> <span class="num">4095</span>;      <span class="cm">// 12-bit ADC</span>
+<span class="kw">const float</span> <span class="var">DIV_R</span>   <span class="op">=</span> <span class="num">4.0</span>;        <span class="cm">// Factor divisor de voltaje</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+Serial.<span class="fn">begin</span>(<span class="num">115200</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+<span class="kw">int</span> <span class="var">raw</span>       <span class="op">=</span> <span class="fn">analogRead</span>(<span class="var">ADC_PIN</span>);
+<span class="kw">float</span> <span class="var">voltage</span> <span class="op">=</span> <span class="var">raw</span> <span class="op">*</span> (<span class="var">V_REF</span> <span class="op">/</span> <span class="var">ADC_RES</span>) <span class="op">*</span> <span class="var">DIV_R</span>;
+
+Serial.<span class="fn">print</span>(<span class="str">“Voltaje: “</span>);
+Serial.<span class="fn">print</span>(<span class="var">voltage</span>, <span class="num">2</span>);
+Serial.<span class="fn">println</span>(<span class="str">” V”</span>);
+<span class="fn">delay</span>(<span class="num">500</span>);
+}
+</div>
+</div>
+
+```
+<div class="card">
+  <div class="card-title">PREGUNTAS DIFÍCILES</div>
+  <ul class="questions-list">
+    <li>¿Por qué aparece ruido en señales cerca de motores DC y cómo se mitiga?</li>
+    <li>¿Qué es un ground loop y cómo destruye mediciones de precisión?</li>
+    <li>¿Por qué usar capacitores de desacople justo en los pines de alimentación del IC?</li>
+    <li>¿Cómo calculas el ancho mínimo de pista para 5A sin quemarse?</li>
+  </ul>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ROLE 2: MOVILIDAD -->
+
+<div class="role-panel" id="role-2">
+  <div class="role-header">
+    <div class="role-icon">🦾</div>
+    <div>
+      <div class="role-code">ROL-03 · LOCOMOCIÓN</div>
+      <div class="role-title">INGENIERO DE MOVILIDAD</div>
+      <div class="role-objective">Diseñar locomoción, seleccionar motores, calcular torque y simular rendimiento en pendientes.</div>
+    </div>
+  </div>
+
+  <div class="random-panel">
+    <div class="random-grid">
+      <div class="random-field">
+        <label>MASA ROVER (kg)</label>
+        <input type="number" id="r2_m" value="18" min="5" max="60" step="0.5">
+      </div>
+      <div class="random-field">
+        <label>PENDIENTE (°)</label>
+        <input type="number" id="r2_ang" value="20" min="5" max="45">
+      </div>
+      <div class="random-field">
+        <label>RADIO RUEDA (m)</label>
+        <input type="number" id="r2_r" value="0.12" min="0.05" max="0.3" step="0.01">
+      </div>
+      <div class="random-field">
+        <label>COEF. FRICCIÓN µ</label>
+        <input type="number" id="r2_mu" value="0.6" min="0.1" max="1.2" step="0.05">
+      </div>
+    </div>
+    <button class="btn-random" onclick="randomRole2()">⚡ GENERAR VALORES ALEATORIOS</button>
+    <div class="result-box" id="r2_result"></div>
+  </div>
+
+  <div class="section-grid">
+    <div class="card">
+      <div class="card-title">RETOS DEL ROL</div>
+      <div class="task-list">
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Calcular torque necesario</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Selección de motor</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Calcular RPM</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Simular pendiente máxima</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Tracción diferencial</span></div>
+      </div>
+    </div>
+
+```
+<div class="card">
+  <div class="card-title">MATEMÁTICAS — DINÁMICA</div>
+  <div class="formula-list">
+    <div class="formula-item">
+      <div class="formula-label">TORQUE</div>
+      <div class="formula-content">\[ \tau = F \cdot r \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">VELOCIDAD</div>
+      <div class="formula-content">\[ v = r\omega \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">FRICCIÓN</div>
+      <div class="formula-content">\[ F_f = \mu N = \mu mg\cos\theta \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">FUERZA EN PENDIENTE</div>
+      <div class="formula-content">\[ F = mg\sin\theta + \mu mg\cos\theta \]</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">CÓDIGO — SIMULACIÓN DE PENDIENTE (Python)</div>
+  <div class="code-block">
+    <span class="code-lang">PYTHON</span>
+```
+
+<span class="kw">import</span> math
+
+<span class="cm"># ── Parámetros ────────────────────────────────</span>
+<span class="var">mass</span>    <span class="op">=</span> <span class="num">18</span>       <span class="cm"># kg</span>
+<span class="var">gravity</span> <span class="op">=</span> <span class="num">9.81</span>     <span class="cm"># m/s²</span>
+<span class="var">slope</span>   <span class="op">=</span> <span class="num">20</span>       <span class="cm"># grados</span>
+<span class="var">mu</span>      <span class="op">=</span> <span class="num">0.6</span>      <span class="cm"># coeficiente de fricción</span>
+<span class="var">radius</span>  <span class="op">=</span> <span class="num">0.12</span>     <span class="cm"># m (radio de rueda)</span>
+
+<span class="cm"># ── Cálculos ──────────────────────────────────</span>
+<span class="var">rad</span>     <span class="op">=</span> math.<span class="fn">radians</span>(<span class="var">slope</span>)
+<span class="var">F_grav</span>  <span class="op">=</span> <span class="var">mass</span> <span class="op">*</span> <span class="var">gravity</span> <span class="op">*</span> math.<span class="fn">sin</span>(<span class="var">rad</span>)
+<span class="var">F_fric</span>  <span class="op">=</span> <span class="var">mu</span> <span class="op">*</span> <span class="var">mass</span> <span class="op">*</span> <span class="var">gravity</span> <span class="op">*</span> math.<span class="fn">cos</span>(<span class="var">rad</span>)
+<span class="var">F_total</span> <span class="op">=</span> <span class="var">F_grav</span> <span class="op">+</span> <span class="var">F_fric</span>
+<span class="var">torque</span>  <span class="op">=</span> <span class="var">F_total</span> <span class="op">*</span> <span class="var">radius</span>
+
+<span class="fn">print</span>(<span class="str">f”Fuerza gravitacional: {F_grav:.2f} N”</span>)
+<span class="fn">print</span>(<span class="str">f”Fuerza fricción:      {F_fric:.2f} N”</span>)
+<span class="fn">print</span>(<span class="str">f”Fuerza total:         {F_total:.2f} N”</span>)
+<span class="fn">print</span>(<span class="str">f”Torque requerido:     {torque:.2f} Nm”</span>)
+</div>
+</div>
+
+```
+<div class="card">
+  <div class="card-title">PREGUNTAS DIFÍCILES</div>
+  <ul class="questions-list">
+    <li>¿Qué ocurre si el centro de masa se desplaza hacia atrás al subir una pendiente?</li>
+    <li>¿Cómo afecta la tracción diferencial al giro en curva estrecha?</li>
+    <li>¿Cuál es la pendiente máxima teórica antes del vuelco?</li>
+  </ul>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ROLE 3: CHASIS -->
+
+<div class="role-panel" id="role-3">
+  <div class="role-header">
+    <div class="role-icon">🔩</div>
+    <div>
+      <div class="role-code">ROL-04 · ESTRUCTURA MECÁNICA</div>
+      <div class="role-title">INGENIERO DE CHASIS</div>
+      <div class="role-objective">Diseñar estructura resistente, optimizar topología y seleccionar materiales con análisis FEM.</div>
+    </div>
+  </div>
+
+  <div class="random-panel">
+    <div class="random-grid">
+      <div class="random-field">
+        <label>FUERZA APLICADA (N)</label>
+        <input type="number" id="r3_f" value="500" min="50" max="5000">
+      </div>
+      <div class="random-field">
+        <label>ÁREA SECCIÓN (mm²)</label>
+        <input type="number" id="r3_a" value="200" min="10" max="2000">
+      </div>
+      <div class="random-field">
+        <label>LONGITUD INICIAL (mm)</label>
+        <input type="number" id="r3_l" value="300" min="10" max="2000">
+      </div>
+      <div class="random-field">
+        <label>MÓDULO YOUNG (GPa)</label>
+        <input type="number" id="r3_e" value="70" min="1" max="400">
+      </div>
+    </div>
+    <button class="btn-random" onclick="randomRole3()">⚡ GENERAR VALORES ALEATORIOS</button>
+    <div class="result-box" id="r3_result"></div>
+  </div>
+
+  <div class="section-grid">
+    <div class="card">
+      <div class="card-title">RETOS DEL ROL</div>
+      <div class="task-list">
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Diseño CAD 3D</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Análisis FEM</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Selección de materiales</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Optimización topológica</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Factor de seguridad</span></div>
+      </div>
+    </div>
+
+```
+<div class="card">
+  <div class="card-title">MATEMÁTICAS — MECÁNICA DE MATERIALES</div>
+  <div class="formula-list">
+    <div class="formula-item">
+      <div class="formula-label">ESFUERZO</div>
+      <div class="formula-content">\[ \sigma = \frac{F}{A} \quad \left[\frac{N}{m^2} = Pa\right] \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">DEFORMACIÓN</div>
+      <div class="formula-content">\[ \varepsilon = \frac{\Delta L}{L_0} \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">LEY DE HOOKE</div>
+      <div class="formula-content">\[ \sigma = E \cdot \varepsilon \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">FACTOR DE SEGURIDAD</div>
+      <div class="formula-content">\[ FS = \frac{\sigma_{fluencia}}{\sigma_{aplicado}} \]</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">PREGUNTAS DIFÍCILES</div>
+  <ul class="questions-list">
+    <li>¿Por qué aluminio 6061 y no PLA en un rover de competencia real?</li>
+    <li>¿Dónde aparecen concentraciones de esfuerzo en uniones roscadas?</li>
+    <li>¿Cómo reduces peso sin sacrificar rigidez torsional?</li>
+    <li>¿Qué es la fatiga y por qué es peligrosa en estructuras vibrantes?</li>
+  </ul>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ROLE 4: PRUEBAS -->
+
+<div class="role-panel" id="role-4">
+  <div class="role-header">
+    <div class="role-icon">📊</div>
+    <div>
+      <div class="role-code">ROL-05 · VALIDACIÓN EXPERIMENTAL</div>
+      <div class="role-title">INGENIERO DE PRUEBAS</div>
+      <div class="role-objective">Validar el rover experimentalmente mediante diseño de experimentos, adquisición de datos y análisis estadístico.</div>
+    </div>
+  </div>
+
+  <div class="random-panel">
+    <div class="random-grid">
+      <div class="random-field">
+        <label>MUESTRA 1</label>
+        <input type="number" id="r4_s1" value="42" min="0" max="200" step="0.1">
+      </div>
+      <div class="random-field">
+        <label>MUESTRA 2</label>
+        <input type="number" id="r4_s2" value="43" min="0" max="200" step="0.1">
+      </div>
+      <div class="random-field">
+        <label>MUESTRA 3</label>
+        <input type="number" id="r4_s3" value="41" min="0" max="200" step="0.1">
+      </div>
+      <div class="random-field">
+        <label>MUESTRA 4</label>
+        <input type="number" id="r4_s4" value="44" min="0" max="200" step="0.1">
+      </div>
+      <div class="random-field">
+        <label>MUESTRA 5</label>
+        <input type="number" id="r4_s5" value="45" min="0" max="200" step="0.1">
+      </div>
+    </div>
+    <button class="btn-random" onclick="randomRole4()">⚡ GENERAR VALORES ALEATORIOS</button>
+    <div class="result-box" id="r4_result"></div>
+  </div>
+
+  <div class="section-grid">
+    <div class="card">
+      <div class="card-title">RETOS DEL ROL</div>
+      <div class="task-list">
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Diseño experimental</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Adquisición de datos</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Análisis estadístico</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Validación de sensores</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Repetibilidad</span></div>
+      </div>
+    </div>
+
+```
+<div class="card">
+  <div class="card-title">MATEMÁTICAS — ESTADÍSTICA</div>
+  <div class="formula-list">
+    <div class="formula-item">
+      <div class="formula-label">MEDIA</div>
+      <div class="formula-content">\[ \bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">VARIANZA</div>
+      <div class="formula-content">\[ \sigma^2 = \frac{1}{n}\sum_{i=1}^{n}(x_i - \mu)^2 \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">DESV. ESTÁNDAR</div>
+      <div class="formula-content">\[ \sigma = \sqrt{\sigma^2} \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">ERROR RELATIVO</div>
+      <div class="formula-content">\[ \varepsilon_r = \frac{|x_{real} - x_{med}|}{x_{real}} \times 100\% \]</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">CÓDIGO — ANÁLISIS ESTADÍSTICO (Python)</div>
+  <div class="code-block">
+    <span class="code-lang">PYTHON</span>
+```
+
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># ── Datos de temperatura del regulador (°C) ───</span>
+<span class="var">temps</span> <span class="op">=</span> [<span class="num">42</span>, <span class="num">43</span>, <span class="num">41</span>, <span class="num">44</span>, <span class="num">45</span>]
+
+<span class="cm"># ── Estadísticos básicos ──────────────────────</span>
+<span class="var">media</span>  <span class="op">=</span> np.<span class="fn">mean</span>(<span class="var">temps</span>)
+<span class="var">std</span>    <span class="op">=</span> np.<span class="fn">std</span>(<span class="var">temps</span>)
+<span class="var">cv</span>     <span class="op">=</span> (<span class="var">std</span> <span class="op">/</span> <span class="var">media</span>) <span class="op">*</span> <span class="num">100</span>   <span class="cm"># Coef. variación (%)</span>
+
+<span class="fn">print</span>(<span class="str">f”Media:              {media:.2f} °C”</span>)
+<span class="fn">print</span>(<span class="str">f”Desv. estándar:     {std:.2f} °C”</span>)
+<span class="fn">print</span>(<span class="str">f”Coef. variación:    {cv:.1f}%”</span>)
+<span class="fn">print</span>(<span class="str">f”Repetibilidad:      {‘OK’ if cv < 5 else ‘REVISAR’}”</span>)
+</div>
+</div>
+
+```
+<div class="card">
+  <div class="card-title">PREGUNTAS DIFÍCILES</div>
+  <ul class="questions-list">
+    <li>¿Cómo validas repetibilidad en un sensor que deriva con temperatura?</li>
+    <li>¿Cómo distingues error sistemático de error aleatorio?</li>
+    <li>¿Cuántas muestras necesitas para un intervalo de confianza del 95%?</li>
+  </ul>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ROLE 5: EXCAVACIÓN -->
+
+<div class="role-panel" id="role-5">
+  <div class="role-header">
+    <div class="role-icon">⛏️</div>
+    <div>
+      <div class="role-code">ROL-06 · MECANISMO DE EXCAVACIÓN</div>
+      <div class="role-title">INGENIERO DE EXCAVACIÓN</div>
+      <div class="role-objective">Diseñar mecanismo de excavación, calcular torque de corte e interacción suelo-herramienta.</div>
+    </div>
+  </div>
+
+  <div class="random-panel">
+    <div class="random-grid">
+      <div class="random-field">
+        <label>FUERZA DE CORTE (N)</label>
+        <input type="number" id="r5_f" value="120" min="10" max="500">
+      </div>
+      <div class="random-field">
+        <label>DISTANCIA (m)</label>
+        <input type="number" id="r5_d" value="0.3" min="0.05" max="2" step="0.05">
+      </div>
+      <div class="random-field">
+        <label>TIEMPO OPERACIÓN (s)</label>
+        <input type="number" id="r5_t" value="10" min="1" max="120">
+      </div>
+      <div class="random-field">
+        <label>PROFUNDIDAD (cm)</label>
+        <input type="number" id="r5_p" value="15" min="1" max="50">
+      </div>
+    </div>
+    <button class="btn-random" onclick="randomRole5()">⚡ GENERAR VALORES ALEATORIOS</button>
+    <div class="result-box" id="r5_result"></div>
+  </div>
+
+  <div class="section-grid">
+    <div class="card">
+      <div class="card-title">RETOS DEL ROL</div>
+      <div class="task-list">
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Torque de excavación</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Diseño de pala/tornillo</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Interacción suelo-herramienta</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Estimación de trabajo mecánico</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Potencia de actuador</span></div>
+      </div>
+    </div>
+
+```
+<div class="card">
+  <div class="card-title">MATEMÁTICAS — MECÁNICA DE EXCAVACIÓN</div>
+  <div class="formula-list">
+    <div class="formula-item">
+      <div class="formula-label">TRABAJO</div>
+      <div class="formula-content">\[ W = F \cdot d \quad [J] \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">POTENCIA</div>
+      <div class="formula-content">\[ P = \frac{W}{t} = F \cdot v \quad [W] \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">TORQUE TORNILLO</div>
+      <div class="formula-content">\[ \tau = F_c \cdot r_{tornillo} \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">PRESIÓN EN SUELO</div>
+      <div class="formula-content">\[ p = \frac{F}{A_{contacto}} \]</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">CÓDIGO — CÁLCULO DE EXCAVACIÓN (Python)</div>
+  <div class="code-block">
+    <span class="code-lang">PYTHON</span>
+```
+
+<span class="cm"># ── Parámetros de excavación ──────────────────</span>
+<span class="var">force</span>     <span class="op">=</span> <span class="num">120</span>   <span class="cm"># N — fuerza de corte</span>
+<span class="var">distance</span>  <span class="op">=</span> <span class="num">0.3</span>   <span class="cm"># m</span>
+<span class="var">time</span>      <span class="op">=</span> <span class="num">10</span>    <span class="cm"># s</span>
+<span class="var">depth</span>     <span class="op">=</span> <span class="num">0.15</span>  <span class="cm"># m</span>
+
+<span class="cm"># ── Cálculos ──────────────────────────────────</span>
+<span class="var">work</span>  <span class="op">=</span> <span class="var">force</span> <span class="op">*</span> <span class="var">distance</span>
+<span class="var">power</span> <span class="op">=</span> <span class="var">work</span>  <span class="op">/</span> <span class="var">time</span>
+
+<span class="cm"># Factor de corrección por profundidad</span>
+<span class="var">k</span>           <span class="op">=</span> <span class="num">1</span> <span class="op">+</span> (<span class="var">depth</span> <span class="op">/</span> <span class="num">0.1</span>)  <span class="cm"># aumenta 100% cada 10 cm</span>
+<span class="var">work_real</span>   <span class="op">=</span> <span class="var">work</span> <span class="op">*</span> <span class="var">k</span>
+<span class="var">power_real</span>  <span class="op">=</span> <span class="var">power</span> <span class="op">*</span> <span class="var">k</span>
+
+<span class="fn">print</span>(<span class="str">f”Trabajo teórico:  {work:.1f} J”</span>)
+<span class="fn">print</span>(<span class="str">f”Trabajo real:     {work_real:.1f} J (con profundidad)”</span>)
+<span class="fn">print</span>(<span class="str">f”Potencia teórica: {power:.1f} W”</span>)
+<span class="fn">print</span>(<span class="str">f”Potencia real:    {power_real:.1f} W”</span>)
+</div>
+</div>
+
+```
+<div class="card">
+  <div class="card-title">PREGUNTAS DIFÍCILES</div>
+  <ul class="questions-list">
+    <li>¿Cómo cambia el torque requerido con arena húmeda vs seca?</li>
+    <li>¿Qué pasa con la potencia al aumentar la profundidad?</li>
+    <li>¿Por qué un tornillo de Arquímedes es más eficiente que una pala plana?</li>
+  </ul>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ROLE 6: FPV -->
+
+<div class="role-panel" id="role-6">
+  <div class="role-header">
+    <div class="role-icon">📡</div>
+    <div>
+      <div class="role-code">ROL-07 · TELEMETRÍA Y VISIÓN</div>
+      <div class="role-title">INGENIERO FPV</div>
+      <div class="role-objective">Diseñar transmisión de video FPV, gestionar latencia, ancho de banda y pérdida de paquetes.</div>
+    </div>
+  </div>
+
+  <div class="random-panel">
+    <div class="random-grid">
+      <div class="random-field">
+        <label>ANCHO DE BANDA (MHz)</label>
+        <input type="number" id="r6_b" value="20" min="1" max="160">
+      </div>
+      <div class="random-field">
+        <label>SNR (dB)</label>
+        <input type="number" id="r6_snr" value="25" min="0" max="60">
+      </div>
+      <div class="random-field">
+        <label>RESOLUCIÓN (px horizontal)</label>
+        <input type="number" id="r6_res" value="1280" min="320" max="3840">
+      </div>
+      <div class="random-field">
+        <label>FPS</label>
+        <input type="number" id="r6_fps" value="30" min="10" max="120">
+      </div>
+    </div>
+    <button class="btn-random" onclick="randomRole6()">⚡ GENERAR VALORES ALEATORIOS</button>
+    <div class="result-box" id="r6_result"></div>
+  </div>
+
+  <div class="section-grid">
+    <div class="card">
+      <div class="card-title">RETOS DEL ROL</div>
+      <div class="task-list">
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Análisis de latencia</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Compresión H.264/H.265</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Transmisión RF</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Cámaras estereoscópicas</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>Packet loss mitigation</span></div>
+      </div>
+    </div>
+
+```
+<div class="card">
+  <div class="card-title">MATEMÁTICAS — COMUNICACIONES</div>
+  <div class="formula-list">
+    <div class="formula-item">
+      <div class="formula-label">SHANNON</div>
+      <div class="formula-content">\[ R = B\log_2(1 + SNR) \quad \left[\frac{bits}{s}\right] \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">LATENCIA TOTAL</div>
+      <div class="formula-content">\[ t_{total} = t_{cap} + t_{cod} + t_{tx} + t_{dec} \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">PÉRDIDA DE SEÑAL</div>
+      <div class="formula-content">\[ FSPL = \left(\frac{4\pi d f}{c}\right)^2 \]</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">CÓDIGO — CAPTURA FPV (Python/OpenCV)</div>
+  <div class="code-block">
+    <span class="code-lang">PYTHON</span>
+```
+
+<span class="kw">import</span> cv2
+<span class="kw">import</span> time
+
+<span class="cm"># ── Inicializar cámara ────────────────────────</span>
+<span class="var">cam</span> <span class="op">=</span> cv2.<span class="fn">VideoCapture</span>(<span class="num">0</span>)
+<span class="var">cam</span>.<span class="fn">set</span>(cv2.<span class="var">CAP_PROP_FRAME_WIDTH</span>,  <span class="num">1280</span>)
+<span class="var">cam</span>.<span class="fn">set</span>(cv2.<span class="var">CAP_PROP_FRAME_HEIGHT</span>, <span class="num">720</span>)
+<span class="var">cam</span>.<span class="fn">set</span>(cv2.<span class="var">CAP_PROP_FPS</span>, <span class="num">30</span>)
+
+<span class="kw">while</span> <span class="fn">True</span>:
+<span class="var">t0</span>  <span class="op">=</span> time.<span class="fn">time</span>()
+<span class="var">ret</span>, <span class="var">frame</span> <span class="op">=</span> <span class="var">cam</span>.<span class="fn">read</span>()
+
+```
+<span class="kw">if not</span> <span class="var">ret</span>: <span class="kw">break</span>
+
+<span class="cm"># Calcular latencia de captura</span>
+<span class="var">latency</span> <span class="op">=</span> (time.<span class="fn">time</span>() <span class="op">-</span> <span class="var">t0</span>) <span class="op">*</span> <span class="num">1000</span>   <span class="cm"># ms</span>
+cv2.<span class="fn">putText</span>(<span class="var">frame</span>, <span class="str">f"Lat: {latency:.1f}ms"</span>,
+            (<span class="num">10</span>,<span class="num">30</span>), cv2.<span class="var">FONT_HERSHEY_SIMPLEX</span>,
+            <span class="num">1</span>, (<span class="num">0</span>,<span class="num">255</span>,<span class="num">0</span>), <span class="num">2</span>)
+
+cv2.<span class="fn">imshow</span>(<span class="str">"ROVER FPV"</span>, <span class="var">frame</span>)
+
+<span class="kw">if</span> cv2.<span class="fn">waitKey</span>(<span class="num">1</span>) <span class="op">==</span> <span class="num">27</span>: <span class="kw">break</span>
+```
+
+<span class="var">cam</span>.<span class="fn">release</span>()
+</div>
+</div>
+
+```
+<div class="card">
+  <div class="card-title">PREGUNTAS DIFÍCILES</div>
+  <ul class="questions-list">
+    <li>¿Por qué aparece latencia incluso con codificación local a 720p?</li>
+    <li>¿Qué factores afectan más el rango de transmisión RF?</li>
+    <li>¿Qué pasa con packet loss al 5%? ¿Y al 20%?</li>
+    <li>¿Por qué es útil una cámara estereoscópica vs una monocular?</li>
+  </ul>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ROLE 7: INTEGRACIÓN -->
+
+<div class="role-panel" id="role-7">
+  <div class="role-header">
+    <div class="role-icon">🚀</div>
+    <div>
+      <div class="role-code">FASE FINAL · INTEGRACIÓN COMPLETA</div>
+      <div class="role-title">DEFENSA DEL ROVER</div>
+      <div class="role-objective">Todos los grupos integran su trabajo, presentan cálculos, simulaciones y defienden decisiones técnicas.</div>
+    </div>
+  </div>
+
+  <div class="section-grid">
+    <div class="card">
+      <div class="card-title">CHECKLIST DE INTEGRACIÓN — CADA EQUIPO DEBE PRESENTAR</div>
+      <div class="task-list" style="grid-template-columns: 1fr;">
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>✅ Cálculos completos y verificados</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>📐 Justificación de diseño con alternativas descartadas</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>💻 Simulaciones funcionales corriendo en tiempo real</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>🔬 Pruebas físicas con datos reales medidos</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>🛡️ Defensa de decisiones técnicas bajo preguntas del jurado</span></div>
+        <div class="task-item" onclick="toggleTask(this)"><div class="task-check">✓</div><span>🔗 Interfaz con subsistemas adyacentes documentada</span></div>
+      </div>
+    </div>
+
+```
+<div class="card">
+  <div class="card-title">TECNOLOGÍAS NIVEL PRO</div>
+  <div class="integration-grid">
+    <div class="integration-card">
+      <div class="int-icon">🤖</div>
+      <div class="int-name">ROS2</div>
+      <div class="int-desc">Middleware robótico</div>
+    </div>
+    <div class="integration-card">
+      <div class="int-icon">🗺️</div>
+      <div class="int-name">SLAM</div>
+      <div class="int-desc">Mapeo simultáneo</div>
+    </div>
+    <div class="integration-card">
+      <div class="int-icon">👁️</div>
+      <div class="int-name">VISIÓN IA</div>
+      <div class="int-desc">Detección objetos</div>
+    </div>
+    <div class="integration-card">
+      <div class="int-icon">📈</div>
+      <div class="int-name">CONTROL PID</div>
+      <div class="int-desc">Lazo cerrado</div>
+    </div>
+    <div class="integration-card">
+      <div class="int-icon">🔭</div>
+      <div class="int-name">LiDAR</div>
+      <div class="int-desc">Nube de puntos 3D</div>
+    </div>
+    <div class="integration-card">
+      <div class="int-icon">🧮</div>
+      <div class="int-name">KALMAN</div>
+      <div class="int-desc">Fusión sensorial</div>
+    </div>
+    <div class="integration-card">
+      <div class="int-icon">🛤️</div>
+      <div class="int-name">PATH PLANNING</div>
+      <div class="int-desc">A* / RRT</div>
+    </div>
+    <div class="integration-card">
+      <div class="int-icon">⚙️</div>
+      <div class="int-name">CINEMÁTICA</div>
+      <div class="int-desc">Diferencial</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">CONTROL PID — ECUACIÓN MAESTRA</div>
+  <div class="formula-list">
+    <div class="formula-item">
+      <div class="formula-label">PID</div>
+      <div class="formula-content">\[ u(t) = K_p e(t) + K_i \int_0^t e(\tau)\,d\tau + K_d \frac{de(t)}{dt} \]</div>
+    </div>
+    <div class="formula-item">
+      <div class="formula-label">FILTRO KALMAN</div>
+      <div class="formula-content">\[ \hat{x}_{k|k} = \hat{x}_{k|k-1} + K_k(z_k - H\hat{x}_{k|k-1}) \]</div>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+</main>
+
+<footer>
+  ROVER-7 TALLER · INGENIERÍA AEROESPACIAL &amp; ROBÓTICA &nbsp;·&nbsp; TODOS LOS CÁLCULOS SON APROXIMACIONES DE DISEÑO
+</footer>
+
+<script>
+  // ── Tab navigation ──────────────────────────────────────────
+  function showRole(index) {
+    document.querySelectorAll('.role-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('role-' + index).classList.add('active');
+    document.querySelectorAll('.tab-btn')[index].classList.add('active');
+    MathJax.typeset && MathJax.typeset();
+  }
+
+  // ── Task toggle ──────────────────────────────────────────────
+  function toggleTask(el) {
+    el.classList.toggle('done');
+  }
+
+  // ── Random value generators ─────────────────────────────────
+  function rnd(min, max, dec=1) {
+    return +(Math.random() * (max - min) + min).toFixed(dec);
+  }
+
+  function randomRole0() {
+    const bat  = rnd(60, 250, 0);
+    const mot  = rnd(20, 100, 0);
+    const fpv  = rnd(5,  25,  0);
+    const ctrl = rnd(4,  15,  0);
+    const exc  = rnd(15, 70,  0);
+    document.getElementById('r0_bat').value  = bat;
+    document.getElementById('r0_mot').value  = mot;
+    document.getElementById('r0_fpv').value  = fpv;
+    document.getElementById('r0_ctrl').value = ctrl;
+    document.getElementById('r0_exc').value  = exc;
+    const total   = mot + fpv + ctrl + exc;
+    const runtime = (bat / total).toFixed(2);
+    const result  = document.getElementById('r0_result');
+    result.style.display = 'block';
+    result.textContent =
+`battery_wh   = ${bat} Wh
+motors       = ${mot} W
+fpv          = ${fpv} W
+control      = ${ctrl} W
+excavation   = ${exc} W
+─────────────────────────────
+total_power  = ${total} W
+autonomia    = ${runtime} horas  (${(runtime*60).toFixed(0)} minutos)
+
+► El subsistema de mayor consumo: ${
+  [['Motores',mot],['FPV',fpv],['Control',ctrl],['Excavación',exc]]
+    .sort((a,b)=>b[1]-a[1])[0][0]
+} (${Math.max(mot,fpv,ctrl,exc)} W)`;
+  }
+
+  function randomRole1() {
+    const v = rnd(3.3, 48, 1);
+    const i = rnd(0.1, 15, 2);
+    const r = +(v/i).toFixed(2);
+    const c = rnd(10, 5000, 0);
+    document.getElementById('r1_v').value   = v;
+    document.getElementById('r1_i').value   = i;
+    document.getElementById('r1_r').value   = r;
+    document.getElementById('r1_c').value   = c;
+    const p = (v*i).toFixed(2);
+    const q = (c*v/1e6).toFixed(4);
+    const result = document.getElementById('r1_result');
+    result.style.display = 'block';
+    result.textContent =
+`V  = ${v} V    I  = ${i} A    R  = ${r} Ω
+─────────────────────────────────────────
+P  = V × I = ${v} × ${i} = ${p} W
+R  = V / I = ${v} / ${i} = ${r} Ω
+Q  = C × V = ${c}µF × ${v} = ${q} C
+─────────────────────────────────────────
+Temperatura aprox. regulador: ${(25 + parseFloat(p)*2).toFixed(0)} °C
+Caída en pista (10mΩ):        ${(i*0.01).toFixed(3)} V`;
+  }
+
+  function randomRole2() {
+    const m   = rnd(8,  35,  1);
+    const ang = rnd(10, 40,  0);
+    const r   = rnd(0.06, 0.25, 2);
+    const mu  = rnd(0.3, 1.0, 2);
+    document.getElementById('r2_m').value   = m;
+    document.getElementById('r2_ang').value = ang;
+    document.getElementById('r2_r').value   = r;
+    document.getElementById('r2_mu').value  = mu;
+    const rad    = ang * Math.PI / 180;
+    const Fg     = (m * 9.81 * Math.sin(rad)).toFixed(2);
+    const Ff     = (mu * m * 9.81 * Math.cos(rad)).toFixed(2);
+    const Ft     = (parseFloat(Fg)+parseFloat(Ff)).toFixed(2);
+    const torque = (Ft * r).toFixed(2);
+    const result = document.getElementById('r2_result');
+    result.style.display = 'block';
+    result.textContent =
+`masa = ${m} kg   pendiente = ${ang}°   radio = ${r} m   µ = ${mu}
+─────────────────────────────────────────────────────
+F_gravitacional = m·g·sin(${ang}°) = ${Fg} N
+F_fricción      = µ·m·g·cos(${ang}°) = ${Ff} N
+F_total         = ${Ft} N
+─────────────────────────────────────────────────────
+Torque requerido por rueda = F × r = ${torque} Nm
+Torque total (6 ruedas)    = ${(torque*6).toFixed(2)} Nm`;
+  }
+
+  function randomRole3() {
+    const f = rnd(100, 3000, 0);
+    const a = rnd(20, 1000, 0);
+    const l = rnd(50, 1500, 0);
+    const e = rnd(10, 210, 0);
+    document.getElementById('r3_f').value = f;
+    document.getElementById('r3_a').value = a;
+    document.getElementById('r3_l').value = l;
+    document.getElementById('r3_e').value = e;
+    const sigma = (f / (a*1e-6) / 1e6).toFixed(2);  // MPa
+    const eps   = (sigma / (e*1e3)).toFixed(6);
+    const dL    = (eps * l).toFixed(3);
+    const FS    = (250 / sigma).toFixed(2); // asumiendo aluminio 6061 ~250MPa
+    const result = document.getElementById('r3_result');
+    result.style.display = 'block';
+    result.textContent =
+`F = ${f} N   A = ${a} mm²   L₀ = ${l} mm   E = ${e} GPa
+─────────────────────────────────────────────────────
+σ (esfuerzo)    = F/A = ${sigma} MPa
+ε (deformación) = σ/E = ${eps}
+ΔL              = ε·L₀ = ${dL} mm
+─────────────────────────────────────────────────────
+Factor de seguridad (Al6061, σ_y=250MPa) = ${FS}
+Estado: ${FS >= 2 ? '✓ SEGURO' : FS >= 1 ? '⚠ LÍMITE' : '✗ FALLA'}`;
+  }
+
+  function randomRole4() {
+    const samples = Array.from({length:5}, () => rnd(30, 80, 1));
+    ['r4_s1','r4_s2','r4_s3','r4_s4','r4_s5'].forEach((id,i) => {
+      document.getElementById(id).value = samples[i];
+    });
+    const mean = (samples.reduce((a,b)=>a+b,0)/samples.length).toFixed(2);
+    const variance = samples.reduce((s,x)=>s+(x-mean)**2,0)/samples.length;
+    const std  = Math.sqrt(variance).toFixed(3);
+    const cv   = (std/mean*100).toFixed(1);
+    const result = document.getElementById('r4_result');
+    result.style.display = 'block';
+    result.textContent =
+`Muestras: [${samples.join(', ')}]
+─────────────────────────────────────────────────────
+Media (x̄)          = ${mean}
+Varianza (σ²)       = ${variance.toFixed(3)}
+Desv. estándar (σ)  = ${std}
+Coef. variación     = ${cv}%
+─────────────────────────────────────────────────────
+Repetibilidad: ${cv < 5 ? '✓ EXCELENTE (<5%)' : cv < 10 ? '⚠ ACEPTABLE (<10%)' : '✗ REVISAR (>10%)'}
+Rango [min,max]:   [${Math.min(...samples)}, ${Math.max(...samples)}]`;
+  }
+
+  function randomRole5() {
+    const f = rnd(30, 400, 0);
+    const d = rnd(0.05, 1.5, 2);
+    const t = rnd(3, 90, 0);
+    const p = rnd(5, 40, 0);
+    document.getElementById('r5_f').value = f;
+    document.getElementById('r5_d').value = d;
+    document.getElementById('r5_t').value = t;
+    document.getElementById('r5_p').value = p;
+    const W     = (f*d).toFixed(2);
+    const P     = (W/t).toFixed(2);
+    const k     = (1 + p/10).toFixed(2);
+    const Wr    = (W*k).toFixed(2);
+    const Pr    = (P*k).toFixed(2);
+    const result = document.getElementById('r5_result');
+    result.style.display = 'block';
+    result.textContent =
+`F = ${f} N   d = ${d} m   t = ${t} s   prof = ${p} cm
+─────────────────────────────────────────────────────
+Trabajo teórico   = F·d = ${W} J
+Potencia teórica  = W/t = ${P} W
+Factor profundidad k = 1 + (${p}/10) = ${k}
+─────────────────────────────────────────────────────
+Trabajo real      = ${Wr} J
+Potencia real     = ${Pr} W
+Motor recomendado ≥ ${Math.ceil(Pr*1.3)} W (con 30% margen)`;
+  }
+
+  function randomRole6() {
+    const B   = rnd(2, 80, 0);
+    const snr = rnd(5, 50, 1);
+    const res = [320,640,1280,1920,2560][Math.floor(Math.random()*5)];
+    const fps = [15,24,30,60][Math.floor(Math.random()*4)];
+    document.getElementById('r6_b').value   = B;
+    document.getElementById('r6_snr').value = snr;
+    document.getElementById('r6_res').value = res;
+    document.getElementById('r6_fps').value = fps;
+    const snrLin = Math.pow(10, snr/10);
+    const R      = (B * Math.log2(1 + snrLin)).toFixed(2);
+    const rawMbps= (res * res * 0.5625 * fps * 24 / 1e6).toFixed(1); // 16:9 aprox
+    const result = document.getElementById('r6_result');
+    result.style.display = 'block';
+    result.textContent =
+`B = ${B} MHz   SNR = ${snr} dB   Resolución = ${res}×${Math.round(res*9/16)}   FPS = ${fps}
+─────────────────────────────────────────────────────
+Capacidad de canal (Shannon):
+R = B·log₂(1+SNR) = ${B}·log₂(1+${snrLin.toFixed(0)}) = ${R} Mbps
+─────────────────────────────────────────────────────
+Bitrate sin comprimir ≈ ${rawMbps} Mbps
+Con H.265 (ratio 200:1) ≈ ${(rawMbps/200).toFixed(1)} Mbps
+Canal suficiente: ${parseFloat(R) > rawMbps/200 ? '✓ SÍ' : '✗ NECESITA COMPRESIÓN'}
+Latencia estimada: ${Math.round(1000/fps + 10 + Math.random()*20)} ms`;
+  }
+
+  // MathJax render on load
+  window.addEventListener('load', () => {
+    setTimeout(() => MathJax.typeset && MathJax.typeset(), 500);
+  });
+</script>
+
+</body>
+</html>
